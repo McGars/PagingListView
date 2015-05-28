@@ -3,6 +3,7 @@ package com.paging.listview;
 import java.util.List;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.AbsListView;
@@ -12,6 +13,8 @@ import android.widget.ListView;
 
 
 public class PagingListView extends ListView {
+
+	private boolean isHeaderLoader;
 
 	public interface Pagingable {
 		void onLoadMoreItems();
@@ -26,17 +29,17 @@ public class PagingListView extends ListView {
 
 	public PagingListView(Context context) {
 		super(context);
-		init();
+		init(null);
 	}
 
 	public PagingListView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		init();
+		init(attrs);
 	}
 
 	public PagingListView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		init();
+		init(attrs);
 	}
 
 	public boolean isLoading() {
@@ -59,11 +62,19 @@ public class PagingListView extends ListView {
 			if(loadingView!=null && loadingView.getVisibility() != visible)
 				loadingView.setVisibility(visible);
 		} else {
-			int footerCount = getFooterViewsCount();
-			if(!this.hasMoreItems && footerCount > 0){
-				removeFooterView(loadingView);
-			} else if (this.hasMoreItems && footerCount == 0) {
-				addFooterView(loadingView);
+//			int footerCount = getFooterViewsCount();
+//			if(!this.hasMoreItems && footerCount > 0){
+//				removeFooterView(loadingView);
+//			} else if (this.hasMoreItems && footerCount == 0) {
+//				addFooterView(loadingView);
+//			}
+			removeHeaderView(loadingView);
+			removeFooterView(loadingView);
+			if(this.hasMoreItems){
+				if(!isHeaderLoader)
+					addFooterView(loadingView);
+				else
+					addHeaderView(loadingView);
 			}
 		}
 	}
@@ -85,11 +96,26 @@ public class PagingListView extends ListView {
 	}
 
 
-	private void init() {
+	private void init(AttributeSet attrs) {
+
+		if(attrs != null) {
+			try {
+				TypedArray typedArray = getContext().getTheme().obtainStyledAttributes(attrs, R.styleable.PaggingListViewDesclareStyle, 0, 0);
+				isHeaderLoader  = typedArray.getBoolean(R.styleable.PaggingListViewDesclareStyle_plvHeaderLoader, false);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		isLoading = false;
         loadingView = new LoadingView(getContext());
-		addFooterView(loadingView);
-		setFooterDividersEnabled(false);
+		if(isHeaderLoader) {
+			addHeaderView(loadingView);
+			setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+			setStackFromBottom(true);
+		} else {
+			addFooterView(loadingView);
+			setFooterDividersEnabled(false);
+		}
 		super.setOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -108,7 +134,9 @@ public class PagingListView extends ListView {
                 }
 
                 int lastVisibleItem = firstVisibleItem + visibleItemCount;
-                if (!isLoading && hasMoreItems && (lastVisibleItem == totalItemCount)) {
+                if (!isLoading && hasMoreItems && (
+						isHeaderLoader ? firstVisibleItem == 0 :
+								lastVisibleItem == totalItemCount)) {
                     if (pagingableListener != null) {
                         isLoading = true;
                         pagingableListener.onLoadMoreItems();
@@ -123,4 +151,9 @@ public class PagingListView extends ListView {
     public void setOnScrollListener(OnScrollListener listener) {
         onScrollListener = listener;
     }
+
+	public void setHeaderLoader(boolean isHeader){
+		isHeaderLoader = isHeader;
+		setHasMoreItems(hasMoreItems);
+	}
 }
