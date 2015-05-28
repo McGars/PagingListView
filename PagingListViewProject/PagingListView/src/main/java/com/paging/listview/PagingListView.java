@@ -3,6 +3,7 @@ package com.paging.listview;
 import java.util.List;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.AbsListView;
 import android.widget.HeaderViewListAdapter;
@@ -52,13 +53,18 @@ public class PagingListView extends ListView {
 
 	public void setHasMoreItems(boolean hasMoreItems) {
 		this.hasMoreItems = hasMoreItems;
-		if(!this.hasMoreItems) {
-			removeFooterView(loadingView);
-		}
-		else if(findViewById(R.id.loading_view) == null){
-			addFooterView(loadingView);
-			ListAdapter adapter = ((HeaderViewListAdapter)getAdapter()).getWrappedAdapter();
-			setAdapter(adapter);
+
+		if(Build.VERSION.SDK_INT < 11){
+			int visible = this.hasMoreItems ? VISIBLE : GONE;
+			if(loadingView!=null && loadingView.getVisibility() != visible)
+				loadingView.setVisibility(visible);
+		} else {
+			int footerCount = getFooterViewsCount();
+			if(!this.hasMoreItems && footerCount > 0){
+				removeFooterView(loadingView);
+			} else if (this.hasMoreItems && footerCount == 0) {
+				addFooterView(loadingView);
+			}
 		}
 	}
 
@@ -83,6 +89,7 @@ public class PagingListView extends ListView {
 		isLoading = false;
         loadingView = new LoadingView(getContext());
 		addFooterView(loadingView);
+		setFooterDividersEnabled(false);
 		super.setOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
