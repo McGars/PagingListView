@@ -11,6 +11,22 @@ Fixes current version
 1. Сrash on android 10
 2. Show loader afrer listView.onFinishLoading(false, newItems); and call refresh data
 
+New
+============
+You can set the loader in the header, then the list will scroll from bottom to top
+``` java
+listView.setHeaderLoader(boolean isHeader)
+```
+
+```xml
+<com.paging.listview.PagingListView
+	android:id="@+id/paging_list_view"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	app:plvHeaderLoader="true"
+	/>
+```
+
 Instructions - Maven Central
 ============
 
@@ -62,20 +78,6 @@ Also remember to use this package in your layout files:
 	android:id="@+id/paging_list_view"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"/>
-```
-
-You can set the loader in the header, then the list will scroll from bottom to top
-``` java
-listView.setHeaderLoader(boolean isHeader)
-```
-
-```xml
-<com.paging.listview.PagingListView
-	android:id="@+id/paging_list_view"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	app:plvHeaderLoader="true"
-	/>
 ```
 
 Developed By
