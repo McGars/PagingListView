@@ -6,10 +6,15 @@ PagingListView
 PagingListView has the ability to add more items on it like Gmail does. Basically is a ListView with the ability to add more items on it when reaches the end of the list.<br>
 While "pull to refresh" pattern works at the top of the List and show the latest added items, the PagingListView works at the bottom of the List and shows the first added items.﻿
 
+Fixes current version
+============
+1. Сrash on android 10
+2. Show loader afrer listView.onFinishLoading(false, newItems); and call refresh data
+
 Instructions - Maven Central
 ============
 
-1. Add this library in your build.gradle:
+1. Add this library in your build.gradle: Not contains changes this repository
 
 ```groovy
 dependencies {
@@ -59,11 +64,29 @@ Also remember to use this package in your layout files:
 	android:layout_height="match_parent"/>
 ```
 
+You can set the loader in the header, then the list will scroll from bottom to top
+``` java
+listView.setHeaderLoader(boolean isHeader)
+```
+
+```xml
+<com.paging.listview.PagingListView
+	android:id="@+id/paging_list_view"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	app:plvHeaderLoader="true"
+	/>
+```
+
 Developed By
 ================
 
 * Nicolas Jafelle - <nicolasjafelle@gmail.com>
 
+Addon By
+================
+
+* Vladimir Feofilaktov - <kaminary3@gmail.com>
 
 License
 ================
